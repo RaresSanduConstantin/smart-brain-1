@@ -13,10 +13,10 @@ const particlesOptions = {
   //customize this to your liking
   particles: {
     number: {
-      value: 30,
+      value: 100,
       density: {
         enable: true,
-        value_area: 800
+        value_area: 1000
       }
     }
   }
@@ -25,7 +25,7 @@ const particlesOptions = {
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  box: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -54,16 +54,22 @@ class App extends Component {
   }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    let asd = data.outputs[0].data.regions
+    return asd.map((el) => {
+      const clarifaiFace = el.region_info.bounding_box;
+
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+   
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      }
+    })
+    
   }
 
   displayFaceBox = (box) => {
@@ -85,6 +91,7 @@ class App extends Component {
       })
       .then(response => response.json())
       .then(response => {
+        console.log('res', response)
         if (response) {
           fetch('http://localhost:3000/image', {
             method: 'put',
